@@ -1,9 +1,11 @@
+using OT.Assessment.App.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+
+builder.Services.AddApplicationServices();
 
 var app = builder.Build();
 

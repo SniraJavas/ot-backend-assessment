@@ -1,6 +1,8 @@
 using System.Text.Json;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using OT.Assessment.Consumer.Messaging;
+using OT.Assessment.Consumer.Repositories;
 using OT.Assessment.Contracts.Message;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -9,7 +11,8 @@ namespace OT.Assessment.Consumer;
 
 public sealed class Worker(
     ILogger<Worker> logger,
-    IOptions<RabbitMqOptions> options)
+    IOptions<RabbitMqOptions> options,
+    IServiceScopeFactory scopeFactory)
     : BackgroundService
 {
     private readonly RabbitMqOptions _options = options.Value;
@@ -79,15 +82,35 @@ public sealed class Worker(
                         message.WagerId,
                         message.Amount);
 
-                    // Database persistence will be added next.
+                    // Create a new dependency injection scope.
+                    await using var scope =
+                        scopeFactory.CreateAsyncScope();
 
+                    var repository = scope.ServiceProvider
+                        .GetRequiredService<IWagerRepository>();
+
+                    // Persist the wager using Dapper.
+                    var wasInserted = await repository.InsertAsync(
+                        message,
+                        stoppingToken);
+
+                    // Acknowledge only after successful database processing.
                     await channel.BasicAckAsync(
                         eventArgs.DeliveryTag,
                         multiple: false);
 
-                    logger.LogInformation(
-                        "Successfully processed wager {WagerId}",
-                        message.WagerId);
+                    if (wasInserted)
+                    {
+                        logger.LogInformation(
+                            "Successfully inserted wager {WagerId}",
+                            message.WagerId);
+                    }
+                    else
+                    {
+                        logger.LogInformation(
+                            "Wager {WagerId} already exists. Duplicate ignored.",
+                            message.WagerId);
+                    }
                 }
                 catch (JsonException exception)
                 {
@@ -99,6 +122,23 @@ public sealed class Worker(
                         eventArgs.DeliveryTag,
                         multiple: false,
                         requeue: false);
+                }
+                catch (OperationCanceledException)
+                    when (stoppingToken.IsCancellationRequested)
+                {
+                    logger.LogInformation(
+                        "Wager processing cancelled during shutdown.");
+                }
+                catch (Exception exception)
+                {
+                    logger.LogError(
+                        exception,
+                        "Failed to process wager. Message will be requeued.");
+
+                    await channel.BasicNackAsync(
+                        eventArgs.DeliveryTag,
+                        multiple: false,
+                        requeue: true);
                 }
             };
 

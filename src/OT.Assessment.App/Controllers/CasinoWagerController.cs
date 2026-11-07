@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Mvc;
 using OT.Assessment.App.Messaging;
+using OT.Assessment.App.Repositories;
 using OT.Assessment.Contracts.Message;
 
 namespace OT.Assessment.App.Controllers;
@@ -9,6 +10,7 @@ namespace OT.Assessment.App.Controllers;
 [Route("api/player")]
 public sealed class CasinoWagerController(
     RabbitMqPublisher publisher,
+    ICasinoWagerRepository repository,
     ILogger<CasinoWagerController> logger) : ControllerBase
 {
     [HttpPost("casinowager")]
@@ -60,5 +62,61 @@ public sealed class CasinoWagerController(
                     Message = "Unable to submit wager for processing."
                 });
         }
+    }
+
+    [HttpGet("{playerId:guid}/casinowagers")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetPlayerCasinoWagers(
+        Guid playerId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        if (playerId == Guid.Empty)
+        {
+            return BadRequest(new
+            {
+                Message = "A valid player ID is required."
+            });
+        }
+
+        if (page < 1 || pageSize < 1 || pageSize > 100)
+        {
+            return BadRequest(new
+            {
+                Message = "Page must be greater than zero and pageSize must be between 1 and 100."
+            });
+        }
+
+        var result = await repository.GetPlayerCasinoWagersAsync(
+            playerId,
+            page,
+            pageSize,
+            cancellationToken);
+
+        return Ok(result);
+    }
+
+    [HttpGet("topspenders")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetTopSpenders(
+        [FromQuery] int count = 10,
+        CancellationToken cancellationToken = default)
+    {
+        if (count < 1 || count > 100)
+        {
+            return BadRequest(new
+            {
+                Message = "Count must be between 1 and 100."
+            });
+        }
+
+        var result = await repository.GetTopSpendersAsync(
+            count,
+            cancellationToken);
+
+        return Ok(result);
     }
 }

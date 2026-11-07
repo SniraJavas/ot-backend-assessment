@@ -1,6 +1,7 @@
 
 using OT.Assessment.App.Data;
 using OT.Assessment.App.Messaging;
+using OT.Assessment.App.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,11 +15,16 @@ builder.Services.AddOpenApi();
 builder.Services.Configure<RabbitMqOptions>(
     builder.Configuration.GetSection(RabbitMqOptions.SectionName));
 
+builder.Services.AddScoped<
+    ICasinoWagerRepository,
+    CasinoWagerRepository>();
+
 builder.Services.AddSingleton<RabbitMqPublisher>();
 
 builder.Services.AddSingleton<
     IDbConnectionFactory,
     SqlConnectionFactory>();
+
 var app = builder.Build();
 
 // HTTP request pipeline

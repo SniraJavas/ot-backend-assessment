@@ -1,6 +1,3 @@
-/*
- Requires permission to create databases and objects.
-*/
 
 USE master;
 GO
@@ -147,29 +144,22 @@ GO
  CreatedDateTime DESC
 */
 
-IF NOT EXISTS
-(
+IF NOT EXISTS (
     SELECT 1
     FROM sys.indexes
-    WHERE object_id = OBJECT_ID('dbo.CasinoWagers')
-      AND name = 'IX_CasinoWagers_AccountId_CreatedDateTime'
+    WHERE name = 'IX_CasinoWagers_AccountId_CreatedDateTime'
+      AND object_id = OBJECT_ID('dbo.CasinoWagers')
 )
 BEGIN
-    CREATE NONCLUSTERED INDEX
-        IX_CasinoWagers_AccountId_CreatedDateTime
-
+    CREATE NONCLUSTERED INDEX 
+    IX_CasinoWagers_AccountId_CreatedDateTime
     ON dbo.CasinoWagers
     (
         AccountId,
         CreatedDateTime DESC,
         WagerId DESC
     )
-
-    INCLUDE
-    (
-        GameId,
-        Amount
-    );
+    INCLUDE (GameId, Amount);
 END;
 GO
 
@@ -235,7 +225,7 @@ BEGIN
        OR @CreatedDateTime IS NULL
        OR @CountryCode IS NULL
     BEGIN
-        THROW 50001,
+        ;THROW 50001,
             'Required wager fields cannot be NULL.',
             1;
     END;
@@ -244,7 +234,7 @@ BEGIN
        OR @NumberOfBets <= 0
        OR @Duration < 0
     BEGIN
-        THROW 50002,
+        ;THROW 50002,
             'Wager amount, number of bets, or duration is invalid.',
             1;
     END;

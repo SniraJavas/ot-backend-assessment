@@ -1,5 +1,4 @@
 
-##### -------------Documentation of the Solution -------------- ###############
 
 # OT Backend Assessment
 ## Online Betting Data Capture and Analytics System

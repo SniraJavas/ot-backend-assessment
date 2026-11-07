@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "src\\OT.Assessment.App\\OT.Assessment.App.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "src\\OT.Assessment.Consumer\\OT.Assessment.Consumer.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

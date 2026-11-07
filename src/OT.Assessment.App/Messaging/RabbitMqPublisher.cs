@@ -85,6 +85,12 @@ public sealed class RabbitMqPublisher : IAsyncDisposable
 
         try
         {
+            var connection = await _connectionFactory.CreateConnectionAsync(
+       cancellationToken);
+
+            Console.WriteLine($"Connection successful: {connection.IsOpen}");
+
+            await connection.DisposeAsync();
             if (_connection is { IsOpen: true })
                 return _connection;
 
@@ -98,6 +104,16 @@ public sealed class RabbitMqPublisher : IAsyncDisposable
                 cancellationToken);
 
             return _connection;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("RabbitMQ connection failed!");
+            Console.WriteLine($"Exception Type: {ex.GetType().FullName}");
+            Console.WriteLine($"Message: {ex.Message}");
+            Console.WriteLine($"Inner Exception: {ex.InnerException?.ToString()}");
+            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+            throw;
         }
         finally
         {

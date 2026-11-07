@@ -33,6 +33,23 @@ public sealed class Worker(
 
         try
         {
+
+            logger.LogInformation(
+    """
+    RabbitMQ connection configuration:
+    Host: {Host}
+    Port: {Port}
+    Username: {Username}
+    VirtualHost: {VirtualHost}
+    PasswordLength: {PasswordLength}
+    PasswordMatchesExpected: {PasswordMatches}
+    """,
+    _options.HostName,
+    _options.Port,
+    _options.UserName,
+    _options.VirtualHost,
+    _options.Password.Length,
+    _options.Password == "otpassword123");
             await using var connection =
                 await factory.CreateConnectionAsync(stoppingToken);
 

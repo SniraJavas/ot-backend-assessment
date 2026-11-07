@@ -36,7 +36,7 @@ public sealed class RabbitMqPublisher : IAsyncDisposable
     {
         ArgumentNullException.ThrowIfNull(message);
 
-        if (string.IsNullOrWhiteSpace(message.WagerId))
+        if (message.WagerId.Equals(Guid.Empty))
             throw new ArgumentException("WagerId is required.");
 
         var connection = await GetConnectionAsync(cancellationToken);
@@ -63,7 +63,7 @@ public sealed class RabbitMqPublisher : IAsyncDisposable
         {
             Persistent = true,
             ContentType = "application/json",
-            MessageId = message.WagerId,
+            MessageId = message.WagerId.ToString(),
             Type = nameof(CasinoWagerMessage),
             Timestamp = new AmqpTimestamp(
                 DateTimeOffset.UtcNow.ToUnixTimeSeconds())

@@ -19,7 +19,7 @@ public sealed class CasinoWagerController(
         [FromBody] CasinoWagerMessage message,
         CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(message.WagerId))
+        if (message.WagerId == Guid.Empty)
         {
             return BadRequest(new
             {

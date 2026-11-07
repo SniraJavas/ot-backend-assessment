@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using OT.Assessment.Contracts.Message;
 
-namespace OT.Assessment.Consumer.Repositories
+namespace OT.Assessment.Consumer.Repositories;
+
+public interface IWagerRepository
 {
-    internal interface IWagerRepository
-    {
-    }
+    Task<bool> InsertAsync(
+        CasinoWagerMessage message,
+        CancellationToken cancellationToken);
 }

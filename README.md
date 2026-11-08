@@ -413,11 +413,5 @@ For production deployments:
 | Wager not immediately visible | Check whether the Consumer has processed the queue message |
 | Duplicate wager not inserted | Verify the same `WagerId` was submitted |
 
-## 13. Project Documentation
 
-For the architecture walkthrough, database design explanations, stored procedure breakdown, implementation decisions and engineering interview preparation, see:
-
-```text
-INTERVIEW_NOTES.md
-```
 

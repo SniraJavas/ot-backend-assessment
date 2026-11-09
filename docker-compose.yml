@@ -1,0 +1,6 @@
+services:
+  ot.assessment.consumer:
+    image: ${DOCKER_REGISTRY-}otassessmentconsumer
+    build:
+      context: .
+      dockerfile: src/OT.Assessment.Consumer/Dockerfile

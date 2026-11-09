@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using OT.Assessment.App.Messaging;
 using OT.Assessment.App.Repositories;
 using OT.Assessment.Contracts.Message;
+using RabbitMQ.Client;
 
 namespace OT.Assessment.App.Controllers;
 
@@ -43,13 +44,10 @@ public sealed class CasinoWagerController(
                 message.WagerId
             });
         }
-        catch (OperationCanceledException)
-            when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
+
         catch (Exception exception)
         {
+            Console.WriteLine($"Connection failed: {exception.GetType().Name}: {exception.Message}");
             logger.LogError(
                 exception,
                 "Failed to publish casino wager {WagerId}.",

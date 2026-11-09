@@ -156,6 +156,7 @@ public sealed class Worker(
             await Task.Delay(
                 Timeout.Infinite,
                 stoppingToken);
+
         }
         catch (OperationCanceledException)
             when (stoppingToken.IsCancellationRequested)
